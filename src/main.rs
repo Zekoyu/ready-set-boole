@@ -54,6 +54,7 @@ fn main() {
     // true
 
     print_truth_table::print_truth_table("AB&C|");
+    print_truth_table::print_truth_table("A!");
 
     std::process::exit(0);
 }

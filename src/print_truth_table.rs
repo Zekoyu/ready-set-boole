@@ -12,16 +12,19 @@ pub fn print_truth_table(formula: &str)
 		return;
 	}
 
+	for _ in 0..operators.len() {
+		print!("+---");
+	}
+	println!("+---+");
+
 	for i in 0..operators.len() {
 		print!("| {} ", operators[i]);
 	}
-
 	println!("| = |");
 
 	for _ in 0..operators.len() {
 		print!("|---");
 	}
-
 	println!("|---|");
 
 	// There are 2^n solutions (n = operator count)
@@ -45,9 +48,10 @@ pub fn print_truth_table(formula: &str)
 
 		let res = crate::eval_formula(formula_clone.as_str());
 		println!("| {} |", if res { '1' } else { '0' } );
-
-		// println!("Formula: {formula_clone}");
-
-		// print!("|");
 	}
+	for _ in 0..operators.len() {
+		print!("+---");
+	}
+	println!("+---+");
+
 }
