@@ -3,6 +3,7 @@ mod adder;
 mod multiplier;
 mod eval_formula;
 mod print_truth_table;
+mod negation_normal_form;
 
 use eval_formula::eval_formula;
 
@@ -55,6 +56,8 @@ fn main() {
 
     print_truth_table::print_truth_table("AB&C|");
     print_truth_table::print_truth_table("A!");
+
+    println!("{}", negation_normal_form::negation_normal_form("AB&!"));
 
     std::process::exit(0);
 }
