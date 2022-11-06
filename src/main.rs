@@ -2,6 +2,7 @@ mod gray_code;
 mod adder;
 mod multiplier;
 mod eval_formula;
+mod print_truth_table;
 
 use eval_formula::eval_formula;
 
@@ -52,6 +53,7 @@ fn main() {
     println!("{}", eval_formula("1011||="));
     // true
 
+    print_truth_table::print_truth_table("AB&C|");
 
     std::process::exit(0);
 }
