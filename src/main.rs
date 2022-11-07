@@ -56,8 +56,14 @@ fn main() {
 
     print_truth_table::print_truth_table("AB&C|");
     print_truth_table::print_truth_table("A!");
+    // Xor equivalent in Negation Normal Form (A ^ B  =  A|B & (!A | !B))
+    print_truth_table::print_truth_table("AB|A!B!|&");
+    // AB|A!B!| == A|B  !A|!B
 
-    println!("{}", negation_normal_form::negation_normal_form("AB&!"));
-
+    println!("---------- Negation normal form -----------");
+    println!("{}", negation_normal_form::negation_normal_form("AB&C|D|E&"));
+    println!("{}", negation_normal_form::negation_normal_form("AB>"));
+    println!("{}", negation_normal_form::negation_normal_form("AB|C&!"));
+    println!("{}", negation_normal_form::negation_normal_form("AB>"));
     std::process::exit(0);
 }

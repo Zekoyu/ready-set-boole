@@ -3,7 +3,7 @@ pub fn print_truth_table(formula: &str)
 	let mut operators: Vec<char> = std::vec::Vec::new();
 
 	for c in formula.chars() {
-		if c.is_alphabetic() && c.is_uppercase() {
+		if c.is_alphabetic() && c.is_uppercase() && !operators.contains(&c) {
 			operators.push(c);
 		}
 	}
