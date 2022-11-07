@@ -76,15 +76,56 @@ fn main() {
     // println!("");
     // println!("");
 
-    // let formula = "AI>J=";
-    // let nnf_formula = negation_normal_form(&formula);
+    // 0|0!&00!0!&&|0!&
 
+    // ML=U>!  =  !((M == L) > U)
+    // ML=U> = (M == L) > U  =  !((!M | L) && (!L | M)) | U ==  M!L|L!M|&!U|
+    // ML=U>! = (M == L) > U  =  !(!((!M | L) && (!L | M)) | U) ==  M!L|L!M|&!U|!
+    //                                                              M!L|L!M|&!U|!
+    //                                                 my output =  M!L|&U!&
+
+     /* M!L|L!M|&!U|!
+
+                 NOT
+                  /
+                 OR
+                /  \
+               NOT  U
+                /
+               AND
+              /   \
+             OR   OR
+           / \    / \
+         NOT  L  NOT M
+         /        /
+         M        L
+
+
+         First pass :       |          expected:
+            AND             |
+           /   \            |
+         AND   NOT          |
+         / \     /          |
+        OR NULL  U          |
+        /\                  |
+      NOT L                 |
+       /                    |
+       M                    |
+
+     */
+
+
+
+    // let formula = "ML=U>!"; // M!L|&U!&
+    // CN>CC^|
+    //               without !       ML!&LM!&|U|
+    // let nnf_formula = negation_normal_form(&formula);
+    // let nnf_formula = "M!L|L!M|&!U|!";
     // println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
 
     for _ in 0..10 {
         let formula = generate_formula();
         let nnf_formula = negation_normal_form(&formula);
-
         println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
     }
     // AB&A!B!&|

@@ -87,20 +87,18 @@ impl Node {
  */
 pub fn negation_normal_form(formula: &str) -> String
 {
-	let mut stack: Vec<char> = Vec::new();
 	let mut nodes: Vec<Node> = Vec::new();
 
 	for c in formula.chars() {
 		if c.is_alphabetic() && c.is_uppercase() {
-			stack.push(c);
+			nodes.push(Node::new(c));
 		} else if c == '!' {
 			// Not node only has a left child, either another operator ( !(A&B) ) or a symbol ( !A )
 			// In both case it's stored on the left child, so a NOT node ALWAYS have a left child
 			let mut new_node = Node::new('!');
 
 			let new_node_child={
-				if stack.len() >= 1 { Node::new(stack.pop().unwrap()) }
-				else if nodes.len() >= 1 { nodes.pop().unwrap() }
+				if nodes.len() >= 1 { nodes.pop().unwrap() }
 				else {
 					println!("Negation on nothing");
 					return String::from("");
@@ -111,14 +109,13 @@ pub fn negation_normal_form(formula: &str) -> String
 			nodes.push(new_node);
 		} else {
 			let right_node: Node = {
+				// wtf have i done ?? why 2 bro u stupid or what
 				// if we have only one node, we want it on the left and not right
 				// eg AB&C| AB& should be on the left and not the right and C on the right not the left
 				if nodes.len() >= 2 {
 					nodes.pop().unwrap()
 				}
-				else if stack.len() >= 1 {
-					Node::new(stack.pop().unwrap())
-				} else {
+				else {
 					println!("Wrong formula");
 					return String::from("");
 				}
@@ -128,9 +125,7 @@ pub fn negation_normal_form(formula: &str) -> String
 				if nodes.len() >= 1 {
 					nodes.pop().unwrap()
 				}
-				else if stack.len() >= 1 {
-					Node::new(stack.pop().unwrap())
-				} else {
+				else {
 					println!("Wrong formula");
 					return String::from("");
 				}
@@ -186,6 +181,7 @@ fn print_tree(root: &Node, level: u32)
 		print_tree(root.right.as_ref().unwrap(), level);
 	}
 }
+
 
 // Recursively collapses all ^, >, = and !  from leaves to root
 // (with the exception of ! being the parent of a symbol and not expr)
@@ -347,11 +343,9 @@ fn collapse_special_node_to_nnf(root: &mut Node)
 	};
 }
 
+// postorder otherwise it fails on some values
 fn convert_tree_to_nnf_rec(root: &mut Node)
 {
-	if root.value == '!' {
-		collapse_not_node_to_nnf(root);
-	}
 	// collapse NOT at last because if it finds a XOR or == or idk it won't handle it
 	// so first convert all XOR, == etc. to their 'only & | !' equivalent
 
@@ -361,6 +355,10 @@ fn convert_tree_to_nnf_rec(root: &mut Node)
 
 	if root.right.is_some() {
 		convert_tree_to_nnf_rec(root.right.as_mut().unwrap());
+	}
+
+	if root.value == '!' {
+		collapse_not_node_to_nnf(root)
 	}
 }
 
@@ -384,5 +382,6 @@ fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
 fn convert_tree_to_nnf(root: &mut Node)
 {
 	convert_tree_to_only_nnf_symbols_rec(root);
+
 	convert_tree_to_nnf_rec(root);
 }
