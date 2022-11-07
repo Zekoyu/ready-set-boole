@@ -16,12 +16,12 @@ pub fn eval_formula(formula: &str) -> bool
 			stack.push(if val == false { '1' } else { '0' }); // negate
 		} else {
 			if stack.len() < 2 {
-				println!("Bad formula (wrong stack len on operator)");
+				println!("Bad formula {} (wrong stack len on operator)", formula);
 				return false;
 			}
 
-			let a: bool = if stack.pop().unwrap() == '0' { false } else { true };
 			let b: bool = if stack.pop().unwrap() == '0' { false } else { true };
+			let a: bool = if stack.pop().unwrap() == '0' { false } else { true };
 
 			let res: bool = match c {
 				'&' => a && b,

@@ -150,8 +150,10 @@ pub fn negation_normal_form(formula: &str) -> String
 
 	let mut binding = nodes.pop();
 	let root = binding.as_mut().unwrap();
-	print_tree(&root, 0);
-	convert_tree_to_nnf_rec(root);
+	// print_tree(&root, 0);
+	// println!("");
+
+	convert_tree_to_nnf(root);
 	return get_formula_postorder(binding.unwrap());
 }
 
@@ -187,13 +189,36 @@ fn print_tree(root: &Node, level: u32)
 
 // Recursively collapses all ^, >, = and !  from leaves to root
 // (with the exception of ! being the parent of a symbol and not expr)
-fn collapse_node_to_nnf(mut root: &mut Node)
+fn collapse_not_node_to_nnf(mut root: &mut Node)
 {
 	if root.value.is_alphabetic() && root.value.is_uppercase() {
 		return;
 	}
-	else if root.value == '!' {
+	else if root.value == '!'{
+
+		let left_node = root.left.as_ref().unwrap().clone();
+
+		/*
+		   NOT (root)
+		   /
+          NOT (left_node)
+		  /
+		  A (left_node.left.unwrap())
+		 */
+		// Check if double NOT (!!A => A)
+		if left_node.value == '!' {
+			let left_left_node = left_node.left.clone();
+			// borrowing issues so set the root value to root->left->left->value and root->left to root->left->left->left
+			root.value = left_left_node.unwrap().value;
+			root.left = if left_node.left.is_some() { left_node.left.unwrap().left } else { None };
+			if root.left.is_some() {
+				collapse_not_node_to_nnf(root.left.as_mut().unwrap());
+			}
+			return;
+		}
+
 		let left_node = root.left.as_mut().unwrap();
+
 		// if NOT on symbol, it's good, otherwise if NOT on expression, collapse expression
 		if left_node.value.is_alphabetic() && left_node.value.is_uppercase() {
 			return;
@@ -204,7 +229,7 @@ fn collapse_node_to_nnf(mut root: &mut Node)
 			left_node.value = '!';
 			root.right = Some(new_right_node);
 			left_node.right = None;
-			collapse_node_to_nnf(left_node);
+			collapse_not_node_to_nnf(left_node);
 		}
 	}
 }
@@ -262,20 +287,70 @@ fn get_tree_postorder_rec(root: Node, str: &mut String) -> &String
                       / \    / \
 					 A   B  B   A
  */
-fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
+fn collapse_special_node_to_nnf(root: &mut Node)
 {
+	// first go to last level of nest
 	match root.value {
 		'^' | '>' | '=' => {
+			let left_val = root.left.as_ref().unwrap().value;
+			let right_val = root.right.as_ref().unwrap().value;
 
+			if left_val == '>' || left_val == '=' || left_val == '^' {
+				// recursive call to solve left first
+				collapse_special_node_to_nnf(root.left.as_mut().unwrap());
+			}
+
+			if right_val == '>' || right_val == '=' || right_val == '^' {
+				// recursive call to solve left first
+				collapse_special_node_to_nnf(root.right.as_mut().unwrap());
+			}
 		},
-		_ => (),
+		_ => { return; }
+	};
+
+	// at this point we are at the most deep level meaning there are no subtrees
+	// which contains either ^, > or =, so apply our algorithm
+	match root.value {
+		'^' => {
+			let left_save = root.left.as_ref().unwrap();
+			let right_save = root.right.as_ref().unwrap();
+
+			let new_left = Box::new(Node { left: Some(left_save.clone()), right: Some(right_save.clone()), value: '|' } );
+
+			let not_node_left = Box::new(Node { left: Some(left_save.clone()), right: None, value: '!'} );
+			let not_node_right = Box::new(Node { left: Some(right_save.clone()), right: None, value: '!'} );
+			let new_right = Box::new(Node { left: Some(not_node_left), right: Some(not_node_right), value: '|'});
+			root.value = '&';
+			root.right = Some(new_right);
+			root.left = Some(new_left);
+		},
+		'>' => {
+			let new_left = Box::new(Node { left: Some(root.left.as_ref().unwrap().clone()), right: None, value: '!' } );
+			root.value = '|';
+			root.left = Some(new_left);
+		},
+		'=' => {
+			let left_save = root.left.as_ref().unwrap();
+			let right_save = root.right.as_ref().unwrap();
+
+			let new_left = Box::new(Node { left: Some(left_save.clone()), right: Some(right_save.clone()), value: '>'});
+			let new_right = Box::new(Node { left: Some(right_save.clone()), right: Some(left_save.clone()), value: '>'});
+			root.value = '&';
+			root.left = Some(new_left);
+			root.right = Some(new_right);
+
+			// Now solve the >
+			collapse_special_node_to_nnf(root.left.as_mut().unwrap());
+			collapse_special_node_to_nnf(root.right.as_mut().unwrap());
+		},
+		_ => { return; }
 	};
 }
 
 fn convert_tree_to_nnf_rec(root: &mut Node)
 {
 	if root.value == '!' {
-		collapse_node_to_nnf(root);
+		collapse_not_node_to_nnf(root);
 	}
 	// collapse NOT at last because if it finds a XOR or == or idk it won't handle it
 	// so first convert all XOR, == etc. to their 'only & | !' equivalent
@@ -287,4 +362,27 @@ fn convert_tree_to_nnf_rec(root: &mut Node)
 	if root.right.is_some() {
 		convert_tree_to_nnf_rec(root.right.as_mut().unwrap());
 	}
+}
+
+fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
+{
+	if root.value == '^' || root.value == '>' || root.value == '=' {
+		collapse_special_node_to_nnf(root);
+	}
+	// collapse NOT at last because if it finds a XOR or == or idk it won't handle it
+	// so first convert all XOR, == etc. to their 'only & | !' equivalent
+
+	if root.left.is_some() {
+		convert_tree_to_only_nnf_symbols_rec(root.left.as_mut().unwrap());
+	}
+
+	if root.right.is_some() {
+		convert_tree_to_only_nnf_symbols_rec(root.right.as_mut().unwrap());
+	}
+}
+
+fn convert_tree_to_nnf(root: &mut Node)
+{
+	convert_tree_to_only_nnf_symbols_rec(root);
+	convert_tree_to_nnf_rec(root);
 }
