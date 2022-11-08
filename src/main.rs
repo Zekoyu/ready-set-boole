@@ -6,9 +6,14 @@ mod print_truth_table;
 mod negation_normal_form;
 mod tester;
 mod conjunctive_normal_form;
+mod sat;
+mod powerset;
+mod eval_set;
 
 use eval_formula::eval_formula;
 use tester::*;
+
+use crate::powerset::powerset;
 
 fn main() {
 
@@ -122,7 +127,7 @@ fn main() {
     // let nnf_formula = "M!L|L!M|&!U|!";
     // println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
 
-    for _ in 0..1000 {
+    for _ in 0..10 {
         let formula = generate_formula();
         let nnf_formula = negation_normal_form::negation_normal_form(&formula);
         println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
@@ -131,11 +136,57 @@ fn main() {
     println!("CONJUNCTIVE FORMS");
 
 
-    for _ in 0..1000 {
+    for _ in 0..10 {
         let formula = generate_formula();
         let cnf_formula = conjunctive_normal_form::conjunctive_normal_form(&formula);
         println!("Formulas {} and {} are {}", formula, cnf_formula, if compare_formula(&formula, &cnf_formula) == true { "equivalent" } else { "not equivalent" } );
     }
+
+    println!("{}", sat::sat("AB|"));
+    // true
+    println!("{}", sat::sat("AB&"));
+    // true
+    println!("{}", sat::sat("AA!&"));
+    // false
+    println!("{}", sat::sat("AA^"));
+    // false
+
+    // see example with x, y, z : https://en.wikipedia.org/wiki/Power_set
+    let powerpouet = powerset(&[1, 2, 3]);
+    println!("Powerset of [1, 2, 3] : ");
+    for i in 0..powerpouet.len() {
+      print!("[");
+      for j in 0..powerpouet[i].len() {
+        print!("{}{}", powerpouet[i][j], if j < powerpouet[i].len() - 1 { ", " } else { "" });
+      }
+      println!("]");
+    }
+
+    let sets: Vec<Vec<i32>> = vec![
+      vec![0, 1, 2],
+      vec![0, 3, 4]
+    ];
+    let result = eval_set::eval_set("AB&", &sets);
+    println!("Eval set:");
+    print!("[");
+    for i in 0..result.len() {
+      print!("{}{}", result[i], if i < result.len() - 1 { ", " } else { "" });
+    }
+    println!("]");
+    // [0]
+
+    let sets = vec![
+      vec![0, 1, 2],
+      vec![3, 4, 5],
+    ];
+    let result = eval_set::eval_set("AB|", &sets);
+    // [0, 1, 2, 3, 4, 5]
+    print!("[");
+    for i in 0..result.len() {
+      print!("{}{}", result[i], if i < result.len() - 1 { ", " } else { "" });
+    }
+    println!("]");
+
 
     std::process::exit(0);
 }
