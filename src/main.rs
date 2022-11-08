@@ -5,11 +5,10 @@ mod eval_formula;
 mod print_truth_table;
 mod negation_normal_form;
 mod tester;
+mod conjunctive_normal_form;
 
 use eval_formula::eval_formula;
 use tester::*;
-
-use crate::negation_normal_form::negation_normal_form;
 
 fn main() {
 
@@ -123,12 +122,20 @@ fn main() {
     // let nnf_formula = "M!L|L!M|&!U|!";
     // println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
 
-    for _ in 0..10 {
+    for _ in 0..10000 {
         let formula = generate_formula();
-        let nnf_formula = negation_normal_form(&formula);
+        let nnf_formula = negation_normal_form::negation_normal_form(&formula);
         println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
     }
-    // AB&A!B!&|
+
+    println!("CONJUNCTIVE FORMS");
+
+
+    for _ in 0..10000 {
+        let formula = generate_formula();
+        let cnf_formula = conjunctive_normal_form::conjunctive_normal_form(&formula);
+        println!("Formulas {} and {} are {}", formula, cnf_formula, if compare_formula(&formula, &cnf_formula) == true { "equivalent" } else { "not equivalent" } );
+    }
 
     std::process::exit(0);
 }

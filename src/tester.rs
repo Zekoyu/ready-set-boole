@@ -12,15 +12,15 @@ pub fn generate_formula() -> String {
     for _ in 0..25 {
         let a = &expr[rand::random::<usize>() % expr.len()];
         let b = &expr[rand::random::<usize>() % expr.len()];
-        let c = match rand::random::<usize>() % 2 {
+        let c = match rand::random::<usize>() % 5 {
                 0 => '&',
                 1 => '|',
-                //2 => '^',
-                //3 => '>',
-                //4 => '=',
+                2 => '^',
+                3 => '>',
+                4 => '=',
                 _ => ' ',
         };
-        let tmp = format!("{}{}{}{}", a, b, c, if rand::random::<usize>() % 2 == 0 { "!" } else { "" });
+        let tmp = format!("{}{}{}{}", a, b, c, if rand::random::<usize>() % 6 == 0 { "!" } else { "" });
         expr.push(tmp);
     }
 

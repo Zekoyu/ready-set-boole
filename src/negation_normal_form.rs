@@ -1,9 +1,9 @@
 #[derive(Clone)]
-struct Node {
+pub struct Node {
 	// Option is for optional values (NULL equivalent)
-	left: Option<Box<Node>>,
-	right: Option<Box<Node>>,
-	value: char,
+	pub left: Option<Box<Node>>,
+	pub right: Option<Box<Node>>,
+	pub value: char,
 }
 
 impl Node {
@@ -85,7 +85,7 @@ impl Node {
   to string (Post-order traversal (recursively left, right, lastly node))
   A!B!&C!|
  */
-pub fn negation_normal_form(formula: &str) -> String
+pub fn parse_formula_to_tree(formula: &str) -> Option<Node>
 {
 	let mut nodes: Vec<Node> = Vec::new();
 
@@ -101,7 +101,7 @@ pub fn negation_normal_form(formula: &str) -> String
 				if nodes.len() >= 1 { nodes.pop().unwrap() }
 				else {
 					println!("Negation on nothing");
-					return String::from("");
+					return None;
 				}
 			};
 
@@ -117,7 +117,7 @@ pub fn negation_normal_form(formula: &str) -> String
 				}
 				else {
 					println!("Wrong formula");
-					return String::from("");
+					return None;
 				}
 			};
 
@@ -127,7 +127,7 @@ pub fn negation_normal_form(formula: &str) -> String
 				}
 				else {
 					println!("Wrong formula");
-					return String::from("");
+					return None;
 				}
 			};
 
@@ -140,16 +140,26 @@ pub fn negation_normal_form(formula: &str) -> String
 
 	if nodes.len() != 1 {
 		println!("Wrong final nodes length (invalid formula)");
-		return String::from("");
+		return None;
 	}
 
-	let mut binding = nodes.pop();
-	let root = binding.as_mut().unwrap();
+	return nodes.pop();
+}
+
+pub fn negation_normal_form(formula: &str) -> String
+{
+	let root = parse_formula_to_tree(formula);
+
+	if root.is_none() {
+		return String::new();
+	}
 	// print_tree(&root, 0);
 	// println!("");
 
-	convert_tree_to_nnf(root);
-	return get_formula_postorder(binding.unwrap());
+	let mut root = root.unwrap();
+
+	convert_tree_to_nnf(&mut root);
+	return get_formula_postorder(root);
 }
 
 
@@ -230,7 +240,7 @@ fn collapse_not_node_to_nnf(mut root: &mut Node)
 	}
 }
 
-fn get_formula_postorder(root: Node) -> String
+pub fn get_formula_postorder(root: Node) -> String
 {
 	let mut str = String::from("");
 	return get_tree_postorder_rec(root, &mut str).to_string();
@@ -379,9 +389,8 @@ fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
 	}
 }
 
-fn convert_tree_to_nnf(root: &mut Node)
+pub fn convert_tree_to_nnf(root: &mut Node)
 {
 	convert_tree_to_only_nnf_symbols_rec(root);
-
 	convert_tree_to_nnf_rec(root);
 }
