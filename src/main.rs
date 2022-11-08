@@ -122,7 +122,7 @@ fn main() {
     // let nnf_formula = "M!L|L!M|&!U|!";
     // println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
 
-    for _ in 0..10000 {
+    for _ in 0..1000 {
         let formula = generate_formula();
         let nnf_formula = negation_normal_form::negation_normal_form(&formula);
         println!("Formulas {} and {} are {}", formula, nnf_formula, if compare_formula(&formula, &nnf_formula) == true { "equivalent" } else { "not equivalent" } );
@@ -131,7 +131,7 @@ fn main() {
     println!("CONJUNCTIVE FORMS");
 
 
-    for _ in 0..10000 {
+    for _ in 0..1000 {
         let formula = generate_formula();
         let cnf_formula = conjunctive_normal_form::conjunctive_normal_form(&formula);
         println!("Formulas {} and {} are {}", formula, cnf_formula, if compare_formula(&formula, &cnf_formula) == true { "equivalent" } else { "not equivalent" } );

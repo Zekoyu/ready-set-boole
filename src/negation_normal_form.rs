@@ -293,6 +293,7 @@ fn get_tree_postorder_rec(root: Node, str: &mut String) -> &String
                       / \    / \
 					 A   B  B   A
  */
+// first this was recursive but now we go from leaf to root so recursion is never called
 fn collapse_special_node_to_nnf(root: &mut Node)
 {
 	// first go to last level of nest
@@ -374,9 +375,6 @@ fn convert_tree_to_nnf_rec(root: &mut Node)
 
 fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
 {
-	if root.value == '^' || root.value == '>' || root.value == '=' {
-		collapse_special_node_to_nnf(root);
-	}
 	// collapse NOT at last because if it finds a XOR or == or idk it won't handle it
 	// so first convert all XOR, == etc. to their 'only & | !' equivalent
 
@@ -386,6 +384,10 @@ fn convert_tree_to_only_nnf_symbols_rec(root: &mut Node)
 
 	if root.right.is_some() {
 		convert_tree_to_only_nnf_symbols_rec(root.right.as_mut().unwrap());
+	}
+
+	if root.value == '^' || root.value == '>' || root.value == '=' {
+		collapse_special_node_to_nnf(root);
 	}
 }
 
