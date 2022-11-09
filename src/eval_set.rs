@@ -5,7 +5,7 @@ pub fn eval_set(formula: &str, sets: &Vec<Vec<i32>>) -> Vec<i32>
 	let formula = crate::negation_normal_form::negation_normal_form(formula);
 
 	let mut stack: Vec<BTreeSet<i32>> = vec![];
-	let mut res: Vec<i32> = vec![];
+	let res: Vec<i32> = vec![];
 
 	let mut sets_list: Vec<BTreeSet<i32>> = vec![];
 	for i in 0..sets.len() {
